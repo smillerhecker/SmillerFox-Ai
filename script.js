@@ -3,12 +3,25 @@ document.getElementById("send-btn").addEventListener("click", function() {
     if (userInput.trim() !== "") {
         appendMessage(userInput, 'user');
         document.getElementById("user-input").value = "";
-        
-        // Simulate chatbot response after a delay
-        setTimeout(() => {
-            let botResponse = generateBotResponse(userInput);
-            appendMessage(botResponse, 'bot');
-        }, 1000);
+
+        // Make a POST request to the Flask backend
+        fetch('/get_response', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: userInput })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.response) {
+                appendMessage(data.response, 'bot');
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            appendMessage("Sorry, there was an error with the chatbot.", 'bot');
+        });
     }
 });
 
@@ -19,15 +32,4 @@ function appendMessage(message, sender) {
     
     document.getElementById("chat-messages").appendChild(messageContainer);
     document.getElementById("chat-messages").scrollTop = document.getElementById("chat-messages").scrollHeight; // Scroll to the bottom
-}
-
-function generateBotResponse(input) {
-    // Simple rule-based response for the chatbot
-    if (input.toLowerCase().includes("hello")) {
-        return "Hi! How can I help you today?";
-    } else if (input.toLowerCase().includes("how are you")) {
-        return "I'm doing great, thanks for asking!";
-    } else {
-        return "I'm not sure how to respond to that. Could you rephrase?";
-    }
 }
