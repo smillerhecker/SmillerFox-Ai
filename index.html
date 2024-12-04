@@ -31,24 +31,42 @@
         const userInput = document.getElementById('user-input');
         const conversationWindow = document.getElementById('conversation');
 
-        sendButton.addEventListener('click', async () => {
-            const studyHours = userInput.value;
-            const response = await fetch('/predict', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ study_hours: studyHours }),
-            });
-            const data = await response.json();
-            const prediction = data.prediction;
-            conversationWindow.innerHTML += `<li>You: ${studyHours}</li>`;
-            conversationWindow.innerHTML += `<li>Chatbot: ${prediction}</li>`;
-            userInput.value = '';
-        });
+        const sendMessage = async () => {
+            const studyHours = parseFloat(userInput.value);
+            if (isNaN(studyHours)) {
+                alert("Please enter a valid number for study hours.");
+                return;
+            }
 
-        // Add event listener for enter key press
+            sendButton.disabled = true; // Disable button during the fetch process
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ study_hours: studyHours }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch prediction');
+                }
+
+                const data = await response.json();
+                conversationWindow.innerHTML += `<li>You: ${studyHours}</li>`;
+                conversationWindow.innerHTML += `<li>Chatbot: ${data.prediction}</li>`;
+            } catch (error) {
+                conversationWindow.innerHTML += `<li>Chatbot: Sorry, an error occurred.</li>`;
+            } finally {
+                userInput.value = '';
+                sendButton.disabled = false; // Re-enable button
+            }
+        };
+
+        sendButton.addEventListener('click', sendMessage);
+
         userInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                sendButton.click();
+                sendMessage();
             }
         });
     </script>
