@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Website</title>
+    <title>Chatbot</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -43,6 +43,13 @@
             conversationWindow.innerHTML += `<li>You: ${studyHours}</li>`;
             conversationWindow.innerHTML += `<li>Chatbot: ${prediction}</li>`;
             userInput.value = '';
+        });
+
+        // Add event listener for enter key press
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendButton.click();
+            }
         });
     </script>
 </body>
